@@ -1,15 +1,15 @@
-##首先，我们要有个数据源，
+## 首先，我们要有个数据源，
     -- 源数据
     select * from china_city limit 4;
     select * from lagou_position_bk limit 2; -- lagou_position_bk (工作信息，地区信息，分类信息，公司信息)
-##其次我们要清楚在数据源中分割出想要的数据，例如：
+## 其次我们要清楚在数据源中分割出想要的数据，例如：
     -- 要求，创建三张表
     -- lagou_city (cityid, province, city, district)  # 全国的省市县信息，需要从 china_city 表中提取出来
     -- lagou_company (cid, name, short_name, size, financestage) # 所有的公司表，从 lagou_position_bk 中分离出来
     -- lagou_position (pid, cityid, cid, position, field, salary_min, salary_max, workyear, education, ptype, pnature, advantage, published_at, updated_at)
 
-##分割过程
-> ####--创建lagou_city表
+## 分割过程
+> #### --创建lagou_city表
 
     -- 分步创建
     create table lagou_city01 as
@@ -39,7 +39,7 @@
     select c.id, p.cityName as province, c.cityName as city, null as district from (select * from china_city where depth=2) c
     join china_city p on c.parentId = p.id and p.depth = 1;
 
-##将公司、城市信息从主表分离出去:
+## 将公司、城市信息从主表分离出去:
 
 	create table lagou_position
 	as
@@ -69,7 +69,7 @@
 	from (select * from lagou_position_bk where district is not null) p
 	  join lagou_city c on c.city like concat(p.city, '%') and c.district like concat(p.district, '%');
 	 
->##注意:
+> ## 注意:
 >
 >分表过程中、分完的表，需要添加主键或索引，否则关联查询会特别特别慢
 >使用 create as 语句分表会比较简单，但这个过程存在数据的复制，会比较占用硬盘存储
